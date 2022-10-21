@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Net.Http.Headers;
@@ -16,48 +17,36 @@ namespace Bai4.product
                 if (listProduct[i].name == nameProduct)
                 {   
                     productSameName = listProduct[i];
-                    break;
+                    return productSameName;
                 }
             }
             return productSameName;
         }
 
-        static Product[] findProductByCategory(Product[] listProduct, int categoryId)
+        static List<Product> findProductByCategory(Product[] listProduct, int categoryId)
         {
-            int numberSameId = 0;
-            for(int i = 0; i < listProduct.Length; i++)
-            {
-                if(listProduct[i].categoryId == categoryId)
-                {
-                    numberSameId++;    
-                }
-            }
-            Product[] productSameId = new Product[numberSameId];
+        
+ 
+            List<Product> productSameId = new List<Product>();
             int j = 0;
              for (int i = 0; i < listProduct.Length; i++)
                 {
-                if (listProduct[i].categoryId == categoryId)
-                {
-                    productSameId[j++] = listProduct[i];
-                }
+                    if (listProduct[i].categoryId == categoryId)
+                    {
+                    productSameId.Add(listProduct[i]);
+                    }
                 }
              return productSameId;
             
         }
-        static Product[] findProductByPrice(Product[] listProduct, int price)
+        static List<Product> findProductByPrice(Product[] listProduct, int price)
         {
-            int numberProductLessPrice = 0;
+            List<Product> productLessPrice = new List<Product>();
             for(int i = 0; i < listProduct.Length; i++)
-            {
-                numberProductLessPrice++;
-            }
-            Product[] productLessPrice = new Product[numberProductLessPrice];
-            int j = 0;
-            for(int i = 0; i < numberProductLessPrice; i++)
             {
                 if (listProduct[i].price <= price)
                 {
-                    productLessPrice[j++] = listProduct[i];
+                    productLessPrice.Add(listProduct[i]);
                 }
             }
             return productLessPrice;
@@ -82,57 +71,46 @@ namespace Bai4.product
         static Product[] sortByName(Product[] listProduct)
         {
             Product productTemporary = new Product();
-            for(int i = 0; i < listProduct.Length - 1; i++)
+            int Temporary;
+            for(int i = 0; i < listProduct.Length; i++) 
             {
-                for(int j = 0; j < listProduct.Length - 1; j++)
+                productTemporary = listProduct[i];
+                Temporary = i;
+                while (Temporary > 0 && listProduct[Temporary - 1].name.Length > productTemporary.name.Length )
                 {
-                    if((listProduct[j].name).Length < (listProduct[j + 1].name).Length)
-                    {
-                        productTemporary = listProduct[j];
-                        listProduct[j] = listProduct[j + 1];
-                        listProduct[j+1] = productTemporary;
-                    }
+                    listProduct[Temporary] = listProduct[Temporary - 1];
+                    Temporary--;
                 }
-            }
+                listProduct[Temporary] = productTemporary;
+            } 
+
             return listProduct;
         }
         static Product minByPrice(Product[] listProduct)
         {
-            int minPrice = listProduct[0].price;
-            for(int i = 1; i < listProduct.Length; i++)
+            Product productMinPrice = new Product();
+            productMinPrice = listProduct[0];
+            for (int i = 1; i < listProduct.Length; i++)
             {
-                if(listProduct[i].price < minPrice)
+                if (listProduct[i].price < productMinPrice.price)
                 {
-                    minPrice = listProduct[i].price;
+                    productMinPrice = listProduct[i];
                 }
             }
-            for(int i = 1; i < listProduct.Length; i++)
-            {
-                if(minPrice == listProduct[i].price)
-                {
-                    return listProduct[i];
-                }
-            }
-            return listProduct[0];
+            return productMinPrice;
         }
         static Product maxByPrice(Product[] listProduct)
         {
-            int maxPrice = listProduct[0].price;
-            for (int i = 1; i < listProduct.Length; i++)
+            Product productMaxPrice = new Product();
+            productMaxPrice = listProduct[0];
+            for(int i = 0; i < listProduct.Length; i++)
             {
-                if (listProduct[i].price > maxPrice)
+                if(listProduct[i].price > productMaxPrice.price)
                 {
-                    maxPrice = listProduct[i].price;
+                    productMaxPrice = listProduct[i];
                 }
             }
-            for (int i = 1; i < listProduct.Length; i++)
-            {
-                if (maxPrice == listProduct[i].price)
-                {
-                    return listProduct[i];
-                }
-            }
-            return listProduct[0];
+            return productMaxPrice;
         }
         static float calSalary(float salary, float n)
         {
@@ -173,34 +151,35 @@ namespace Bai4.product
             }
             return month;
         }
+        static string idToName(int id, Category[] category)
+        {
+            string name = "None name";
+            for(int i = 0; i < category.Length; i++)
+            {
+                if(id == category[i].id)
+                {
+                    return category[i].name;
+                }
+            }
+            return name;
+        }
         static Product[] sortByCategoryName(Product[] listProduct, Category[] listCategory)
         {
-            Category categoryTemporary = new Category();
-            for(int i = 0; i < listCategory.Length; i++)
-            {
-                for(int j = i+1; j < listCategory.Length; j++)
-                {
-                    if (listCategory[i].name[0] > listCategory[j].name[0])
-                    {
-                        categoryTemporary = listCategory[i];
-                        listCategory[i] = listCategory[j];
-                        listCategory[j] = categoryTemporary;
-                    }
-                }
-            }
             Product productTemporary = new Product();
-            Product[] products = new Product[listProduct.Length];
-            int countVariablelProduct = 0;
-            for (int i = 0; i < listCategory.Length; i++) {
-                for(int j = 0; j < listProduct.Length; j++)
+            int Temporary;
+            for(int i = 0; i < listProduct.Length; i++)
+            {
+                productTemporary = listProduct[i];
+                Temporary = i;
+                while (Temporary > 0 && (idToName(listProduct[Temporary - 1].categoryId, listCategory))[0] > (idToName(productTemporary.categoryId, listCategory))[0])
                 {
-                    if(listCategory[i].id ==listProduct[j].categoryId)
-                    {
-                        products[countVariablelProduct++] = listProduct[j];
-                    }
+                    listProduct[Temporary] = listProduct[Temporary-1];
+                    Temporary--;
                 }
+                listProduct[Temporary] = productTemporary;
             }
-            return products;
+            return listProduct;
+
         }
         static ProductHaveCategoryName[] mapProductByCategory(Product[] listProduct, Category[] listCategory)
         {
@@ -212,6 +191,7 @@ namespace Bai4.product
                 productHaveCategoryName[i].price = listProduct[i].price;
                 productHaveCategoryName[i].categoryId = listProduct[i].categoryId;
                 productHaveCategoryName[i].quality = listProduct[i].quality;
+
                 for(int j = 0;j < listCategory.Length; j++)
                 {
                     if (productHaveCategoryName[i].categoryId == listCategory[j].id)
@@ -224,7 +204,6 @@ namespace Bai4.product
         }
         static void printMenu(Menu[] menus)
         {
-
 
         }
 
@@ -318,6 +297,15 @@ namespace Bai4.product
             {
                 Console.Write(mapProductByCategory(product, category)[i].name + "    " + mapProductByCategory(product, category)[i].categoryName + "\n");
             }*/
+            /*for (int i = 0; i < product.Length; i++)
+            {
+                Console.WriteLine(sortByCategoryName(product, category)[i].name + "   " + sortByCategoryName(product, category)[i].categoryId);
+            }*/
+            /*for (int i = 0; i < product.Length; i++)
+            {
+                Console.WriteLine(sortByCategoryName(product, category)[i].name + "   " + sortByCategoryName(product, category)[i].categoryId);
+            }*/
+
         }
     } 
 }
